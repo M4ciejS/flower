@@ -1,0 +1,169 @@
+<html>
+    <head>
+        <title>Kwiatek</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style> 
+            div.canva{
+                border: 1px solid black;
+                float:left;
+            }
+            div.control{
+                border: 1px dotted black;
+                margin: 5px;
+                padding: 2px;
+                float: left;
+            }
+            img {
+                width: 16px;
+                height: 16px;
+            }
+        </style>
+        <script>
+            var canvas;
+            var ctx;
+            var topspeed = 5;
+            var ANIMSPEED = 25;
+            var czysc = 3;
+            var bckcolor = "#AAAAAA";
+            var ballcolor = "#557755";
+            var WIDTH = 600;
+            var HEIGHT = 400;
+            var accel = new vektor(0, 0.08);
+            var target = new vektor(500, 100);
+            var b1 = new ball(new vektor(15, 200), new vektor(8, -15), new vektor(0.01, 0.03), topspeed);
+            function vektor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.add = function (v) {
+                    this.x += v.x;
+                    this.y += v.y;
+                }
+                this.length = function () {
+                    var tmpl;
+                    tmpl = Math.sqrt((this.x * this.x + this.y * this.y));
+                    return tmpl;
+                }
+                this.normalize = function () {
+                    var tmpl = this.length();
+                    var tmpv = new vektor(0, 0);
+                    if (tmpl > 0) {
+                        tmpv.x = this.x / tmpl;
+                        tmpv.y = this.y / tmpl;
+                        return tmpv;
+                    } else {
+                        return this;
+                    }
+                }
+            }
+            function ball(startp, startv, saccel, stopspeed) {
+                this.i = -0.01;
+                this.step = -0.01;
+                this.poz = startp;
+                this.vel = startv;
+                this.accel = saccel;
+                this.topspeed = stopspeed;
+                this.move = function () {
+                    var tmpv1 = new vektor(target.x - this.poz.x, target.y - this.poz.y);
+                    var tmpv2 = tmpv1.normalize();
+                    tmpv2.x = tmpv2.x * 0.2;
+                    tmpv2.y = tmpv2.y * 0.2;
+                    this.accel = tmpv2;
+                    //accel=new vektor(rnd(-1,1),rnd(-1,1));
+                    //var tmpa=accel.normalize();
+                    if (this.vel.length() > this.topspeed) {//zrobic tak zeby vel.lenght=topspeed
+                        tmpvv = this.vel.normalize();
+                        this.vel.x = tmpvv.x * topspeed;
+                        this.vel.y = tmpvv.y * topspeed;
+                    }
+                    this.vel.add(this.accel);
+                    this.poz.add(this.vel);
+                    if (this.i < -0.5 || this.i > 0.5)
+                        this.step = this.step * (-1);
+                    this.i = this.i - this.step;
+                    ;
+                }
+                this.kolizja = function () {
+                    if (this.poz.x + 10 > WIDTH || this.poz.x - 10 < 0) {
+                        this.vel.x = this.vel.x * (-1);
+                    }
+                    if (this.poz.y + 10 > HEIGHT || this.poz.y - 10 < 0) {
+                        this.vel.y = this.vel.y * (-1);
+                    }
+                }
+                this.draw = function () {
+                    //ctx.fillStyle = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+                    ctx.fillStyle = ColorLuminance(ballcolor, Number(this.i));
+                    circle(this.poz.x, this.poz.y, 10);
+                }
+            }
+            function circle(x, y, r) {
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2, true);
+                ctx.fill();
+            }
+            function clear() {
+                //ctx.clearRect(0, 0, WIDTH, HEIGHT);
+                ctx.fillStyle = bckcolor;
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+            }
+            function draw() {
+                if (czysc == 1) {
+                    clear();
+                }
+                //ctx.fillStyle = "#000000";
+                //ctx.fillText("vel.length: "+b1.vel.length(),10,20);
+                ctx.fillStyle = "#ff0000";
+                circle(target.x, target.y, 10);
+                b1.kolizja();
+                b1.draw();
+                b1.move();
+            }
+            function rnd(from, to)
+            {
+                return Math.floor(Math.random() * (to - from + 1) + from);
+            }
+            function ColorLuminance(hex, lum) {
+                // validate hex string
+                hex = String(hex).replace(/[^0-9a-f]/gi, '');
+                if (hex.length < 6) {
+                    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+                }
+                lum = lum || 0;
+                // convert to decimal and change luminosity
+                var rgb = "#", c, i;
+                for (i = 0; i < 3; i++) {
+                    c = parseInt(hex.substr(i * 2, 2), 16);
+                    c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
+                    rgb += ("00" + c).substr(c.length);
+                }
+                return rgb;
+            }
+            document.addEventListener("click", function () {
+                document.getElementById("demo").innerHTML = "Hello World";
+            });
+        </script>
+    </head>
+    <body>
+        <div class="canva">
+            <canvas id="canvas2" width="600" height="400">
+                Niemasz canvasuw cieniasie!
+            </canvas>
+        </div>
+        <script type="text/javascript">
+            function init() {
+                canvas = document.getElementById("canvas2");
+                ctx = canvas.getContext("2d");
+                canvas.addEventListener("click",function(event){
+                    target.x=event.pageX;
+                    target.y=event.pageY;
+                })
+                return setInterval(draw, ANIMSPEED);
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                init();
+            });
+
+        </script>
+    </body>
+</html>

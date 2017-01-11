@@ -1,0 +1,9 @@
+#canvas2{
+    border: 1px solid black;
+    margin:0 auto;
+    display: block;
+}
+img {
+    width: 16px;
+    height: 16px;
+}

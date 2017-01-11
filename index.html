@@ -1,0 +1,58 @@
+<html>
+<head>
+    <title>Gravity</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="main.css" rel="stylesheet" type="text/css"/>
+    <script src="gravity.js"></script>
+</head>
+<body>
+
+<canvas id="canvas2">
+    Canvas needed for this to work!
+</canvas>
+
+<script type="text/javascript">
+    function init() {
+        var stop = false;
+        const FRAMES_PER_SECOND = 60;  // Valid values are 60,30,20,15,10
+        const FRAME_MIN_TIME = (1000/60) * (60 / FRAMES_PER_SECOND) - (1000/60) * 0.5;
+        var lastFrameTime = 0;
+        canvas = document.getElementById("canvas2");
+        canvas.setAttribute("width", w);
+        canvas.setAttribute("height", h);
+        ctx = canvas.getContext("2d");
+        canvas.addEventListener("click", function (event) {
+            coords = canvas.relMouseCoords(event);
+            target.x = coords.x;
+            target.y = coords.y;
+            clear();
+        })
+        canvas.addEventListener("mousewheel", MouseWheelHandler, false);
+        // Firefox
+        canvas.addEventListener("DOMMouseScroll", MouseWheelHandler, false);
+        function MouseWheelHandler(e){
+            var e = window.event || e; // old IE support
+            var delta = Math.max(-1, Math.min(1, (e.wheelDelta || -e.detail)));
+            b1.topspeed+=delta;
+            console.log(delta+" "+b1.topspeed);
+        }
+        function update(time){
+            if(time-lastFrameTime < FRAME_MIN_TIME){ //skip the frame if the call is to early
+                requestAnimFrame(update);
+                return; // return as there is nothing to do
+            }
+            lastFrameTime = time; // remember the time of the rendered frame
+            // render the frame
+            draw();
+            requestAnimFrame(update);
+        }
+        requestAnimFrame(update);
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        init();
+    });
+
+</script>
+</body>
+</html>
